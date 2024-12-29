@@ -4,8 +4,43 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React, { useState } from 'react'
 export default function Login() {
+
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+  });
+
+
+
   // Creating Variables state for close and open the eye icon for hide and show password
   const [showPassword, setShowPassword] = useState(false)
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const { refresh, access } = await response.json()
+        // เก็บ tokens ลง localStorage
+        localStorage.setItem('accessToken', access) // สร้าง key ชื่อ accessToken และเก็บค่า access
+        localStorage.setItem('refreshToken', refresh) // สร้าง key ชื่อ refreshToken และเก็บค่า refresh
+        window.location.href = '/' // ไปหน้าหลัก
+      } else if(response.status === 401){
+        alert('Username or password is incorrect')
+      }
+    } catch (error) {
+      console.error('Login failed:', error)
+    }
+  };
 
   return (
     <div className='min-h-screen bg-gray-50 flex'>
@@ -42,12 +77,14 @@ export default function Login() {
             <p className="text-gray-600 mt-2">Welcome back! Please log in to continue.</p>
           </div>
 
-          <form  className="space-y-4">
+          <form onClick={handleSubmit} className="space-y-4">
           <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
               <input
                 type="text"
                 id="username"
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 className="mt-1 block w-full px-4 py-3 bg-white border text-gray-900 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 required
               />
@@ -60,6 +97,8 @@ export default function Login() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="mt-1 block w-full px-4 py-3 bg-white border text-gray-900 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   required
                 />

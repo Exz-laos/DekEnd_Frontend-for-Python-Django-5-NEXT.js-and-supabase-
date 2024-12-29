@@ -22,10 +22,37 @@ export default function Login() {
   })
 
   //Create Fuction for submiting form
-    const handleSubmit = async(e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        console.log(formData)
+        //console.log(formData)
+
+        //sending data into API
+        try{
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: formData.username,
+                    password: formData.password,
+                    email: formData.email,
+                    first_name: formData.first_name,
+                    last_name: formData.last_name,
+                    tel: formData.tel
+                })
+            })
+            if (response.ok){
+                // if register success --redirect to--> login page
+                window.location.href = '/login'
+            }
+
+        }catch(error){
+            console.error('Registration failed', error);
+        }
     }
+
+    
 
 
   return (
