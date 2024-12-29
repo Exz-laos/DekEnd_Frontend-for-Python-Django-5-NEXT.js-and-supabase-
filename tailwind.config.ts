@@ -13,6 +13,9 @@ export default {
         foreground: "var(--foreground)",
       },
     },
+    fontFamily: {
+      sans: ["Newsreader", "sans-serif"],
+    }
   },
   plugins: [],
 } satisfies Config;
